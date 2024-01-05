@@ -105,7 +105,7 @@ int main(void)
   {
     /* USER CODE END WHILE */
 	  if(HAL_UART_Receive(&huart4, &rxData, 3, 300)== HAL_OK){
-		  if(rxData == "Rbt"){
+		  if(memcmp(rxData,"Rbt",3)==0){
 			  HAL_UART_Transmit(&huart4, &back, strlen(back), 300);
 			  HAL_RCC_DeInit();
 
@@ -120,13 +120,14 @@ int main(void)
 			  __set_MSP(*(__IO uint32_t*)0x08000000);
 			  app_reset_handler();
 		  }
-		  if(rxData == "Udt"){
+		  if(memcmp(rxData,"Udt",3)==0){
 			  HAL_UART_Receive(&huart4, &rxData, 3, 300);
-			  while(rxData!="End"){
+			  while(memcmp(rxData,"End",3)==1){
 				  HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
 				  Flash_Write(ADDRESS + offset, rxData[0]);
 				  offset++;
 				  HAL_UART_Transmit(&huart4, &txData, strlen(txData), 300);
+				  HAL_UART_Receive(&huart4, &rxData, 3, 300);
 			  }
 			  HAL_UART_Transmit(&huart4,&Done,strlen(Done),300);
 		  }
