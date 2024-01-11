@@ -46,10 +46,11 @@ typedef void (*pFunction)(void);
 /* USER CODE BEGIN PV */
 uint8_t Mode[] = "Dang chay chuong trinh update firmware\r\n";
 uint8_t rxData[3];
-uint8_t txData[] = "1\r\n";
+uint8_t txData[] = "1111";
 uint8_t back[] = "Tro ve bootloader\r\n";
 uint32_t offset=0;
 uint8_t Done[] = "Done!!!\r\n";
+uint8_t Data;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -121,13 +122,14 @@ int main(void)
 			  app_reset_handler();
 		  }
 		  if(memcmp(rxData,"Udt",3)==0){
-			  HAL_UART_Receive(&huart4, &rxData, 3, 300);
-			  while(memcmp(rxData,"End",3)==1){
-				  HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
-				  Flash_Write(ADDRESS + offset, rxData[0]);
-				  offset++;
+			  HAL_UART_Transmit(&huart4, &Mode, strlen(Mode), 300);
+			  while(memcmp(rxData,"End",3)!=0){
 				  HAL_UART_Transmit(&huart4, &txData, strlen(txData), 300);
-				  HAL_UART_Receive(&huart4, &rxData, 3, 300);
+				  if(HAL_UART_Receive(&huart4, &Data, 1, 300)==HAL_OK){
+				  HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
+				  Flash_Write(ADDRESS + offset, Data);
+				  offset++;
+				  }
 			  }
 			  HAL_UART_Transmit(&huart4,&Done,strlen(Done),300);
 		  }
